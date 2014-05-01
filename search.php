@@ -7,9 +7,14 @@ $query = str_replace(' ', '%20', $_POST['query']);
 $white = $_POST['white'];
 $black = $_POST['black'];
 $searchType = $_POST['searchType'];
+//$username = $_POST['uname'];
+//$password = $_POST['password'];
 
 $whiteList = explode(' ', $white);
 $blackList = explode(' ', $black);
+
+$nsfwFilter = NULL;
+//$onlySubscribed = NULL;
 
 if (isset($_POST['nsfwFilter'])){
 	$nsfwFilter = true;
@@ -18,9 +23,20 @@ else{
 	$nsfwFilter = false;
 }
 
+/*if (isset($_POST['subscribed'])){
+	$onlySubscribed = true;
+}
+else{
+	$onlySubscribed = false;
+}*/
+
 if ($searchType == 'selfPosts'){
 	$query = $query . '%20self:yes';
 }
+
+/*if ($onlySubscribed && strlen($username) > 0 && strlen($password) > 0){
+
+}*/
 
 function printResults($json, $nsfwFilter, $searchType, $blackList){
 	$children = $json['data']['children'];
