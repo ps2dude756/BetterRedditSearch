@@ -3,18 +3,15 @@
 <body>
 <?php
 
-echo "hello world"
+$query = str_replace(' ', '%20', $_POST["query"]);
 
-/*$string_reddit = file_get_contents("http://www.reddit.com/r/funny/search.json?q=cat&restrict_sr=on");
-$json = json_decode($string_reddit, true);  
+$url = file_get_contents("http://www.reddit.com/search.json?q=" . $query . "&restrict_sr=on");
+$json = json_decode($url, true);  
 
 $children = $json['data']['children'];
 foreach ($children as $child){
-    print $child['data']['author'];
-    print "\r\n";
-    print $child['data']['title'];
-    print "\r\n\r\n";
-}*/
+    echo "<p>" . $child['data']['author'] . "<br>" . $child['data']['title'] . "</p>";
+}
 
 ?>
 </body>
