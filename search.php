@@ -2,6 +2,7 @@
 <html>
 <body>
 <?php
+  require 'reddit_search.php';
 
 $query = str_replace(' ', '%20', $_POST['query']);
 $white = $_POST['white'];
@@ -39,7 +40,7 @@ if ($searchType == 'selfPosts'){
 }*/
 
 function printResults($json, $nsfwFilter, $searchType, $blackList){
-	$children = $json['data']['children'];
+	$children = $json;
 	foreach ($children as $child){
 		$www = $child['data']['url'];
 		$isImage = (strpos($www, 'imgur') !== FALSE || strpos($www, 'gif') !== FALSE || strpos($www, 'minus') !== FALSE || strpos($www, 'jpeg') !== FALSE || strpos($www, 'png') !== FALSE || strpos($www, 'bmp') !== FALSE);
@@ -58,18 +59,18 @@ function printResults($json, $nsfwFilter, $searchType, $blackList){
 }
 
 if(count($whiteList) == 0){
-	$url = file_get_contents('http://www.reddit.com/search.json?q=' . $query . '&restrict_sr=on&limit=100');
-	$json = json_decode($url, true); 
+  $search = new RedditSearch($query);
+  $results = $search->get_search_results();
 
-	printResults($json, $nsfwFilter, $searchType, $blackList); 
+	printResults($results, $nsfwFilter, $searchType, $blackList); 
 }
 else{
 	foreach ($whiteList as $sub){
-		$url = file_get_contents('http://www.reddit.com' . $sub . '/search.json?q=' . $query . '&restrict_sr=on&limit=100');
-		$json = json_decode($url, true);
+    $search = new RedditSearch($query, array('subreddit' => $sub));
+    $results = $search->get_search_results();
 
 		echo '<p><b>' . $sub . '</b></p>';
-		printResults($json, $nsfwFilter, $searchType, $blackList);
+		printResults($results, $nsfwFilter, $searchType, $blackList);
 	}
 }
 

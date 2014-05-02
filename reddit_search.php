@@ -4,7 +4,7 @@
     return $string === 'yes' or $string === 'no';
   }
 
-  class Search
+  class RedditSearch
   {
     /* Query fields */
     public $query = '';
@@ -92,7 +92,9 @@
 
     private function get_url() {
       $url = 'http://www.reddit.com/search.json?q='.$this->format_query();
-      return str_replace(' ', '+', $url);
+      $url = str_replace(' ', '%20', $url);
+      $url = str_replace(';', '%3A', $url);
+      return $url;
     }
 
     private function format_query() {

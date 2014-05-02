@@ -1,5 +1,5 @@
 <?php
-  require 'search_api.php';
+  require 'reddit_search.php';
 
   function display_search_results($search_results) {
     foreach ($search_results as $search_result) {
@@ -12,6 +12,7 @@
     }
   }
 
-  $test = new Search('cat');
-  display_search_results($test->get_search_results());
+  $test = new RedditSearch('cats');
+  $results = $test->get_search_results();
+  display_search_results($results);
 ?>
