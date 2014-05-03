@@ -53,16 +53,17 @@
     }
 
     if ($whitelist) {
+      $results = array();
       foreach ($whitelist as $entry) {
         $options['subreddit'] = $entry;
         $search = new RedditSearch($query, $options);
-        $results = $search->get_search_results();
-        echo sprintf('<p><b>/r/%s</b>', $entry);
-        displayResults($results, $type, $blacklist, $query);
+        array_push($results, $search->get_search_results());
       }
+      displayResults($results, $type, $blacklist, $query);
     } else {
+      $results = array();
       $search = new RedditSearch($query, $options);
-      $results = $search->get_search_results();
+      array_push($results, $search->get_search_results());
       displayResults($results, $type, $blacklist, $query);
     }
   }
@@ -137,24 +138,26 @@
     }
   }
 
-  function rankPosts($results, $query){
+  function rankPosts($jsons, $query){
     $query = explode(" ", $query);
 
     $retVal = array();
-    foreach($results as $result){
-      $data = $result['data'];
-      $title = $data['title'];
-      $score = $data['score'];
-      $numComments = $data['num_comments'];
-      $author = $data['author'];
-      $subreddit = $data['subreddit'];
-      $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
-      $selfText = $data['selftext'];
-      $url = $data['url'];
+    foreach($jsons as $results){
+      foreach($results as $result){
+        $data = $result['data'];
+        $title = $data['title'];
+        $score = $data['score'];
+        $numComments = $data['num_comments'];
+        $author = $data['author'];
+        $subreddit = $data['subreddit'];
+        $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
+        $selfText = $data['selftext'];
+        $url = $data['url'];
 
-      $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url);
-      scorePost($post, $query);
-      array_push($retVal, $post);
+        $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url);
+        scorePost($post, $query);
+        array_push($retVal, $post);
+      }
     }
     usort($retVal, "cmp");
     return $retVal; 
