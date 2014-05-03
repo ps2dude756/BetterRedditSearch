@@ -153,8 +153,24 @@
       $selfText = $data['selftext'];
 
       $post = new postObjcet($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText)
+      scorePost($post, $query);
+      array_push($retVal, $post);
+    }
 
+    usort($retVal, "cmp")
 
+    return $retVal; 
+  }
+
+  function cmp($a, $b){
+    if $a->getScore() < $b->getScore(){
+      return -1;
+    }
+    else if($a->getScore() > $b->getScore()){
+      return 1;
+    }
+    else{
+      return 0; 
     }
   }
 
