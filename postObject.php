@@ -10,7 +10,7 @@ class PostObject{
 	public $rankScore;
 	public $selfText; 
 
-	public function __construct($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url){
+	public function __construct($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url, $permalink){
 		$this->title = $title;
 		$this->score = $score;
 		$this->numComments = $numComments;
@@ -21,6 +21,7 @@ class PostObject{
 		$this->selfText = $selfText;
 		$this->rankScore = $this->score;
 		$this->url = $url;
+		$this->permalink = $permalink;
 
 	}
 	public function getTitle(){
@@ -61,6 +62,10 @@ class PostObject{
 
 	public function getURL(){
 		return $this->url;
+	}
+
+	public function getPermaLink(){
+		return $this->permalink;
 	}
 
 	public function setTitle($title){

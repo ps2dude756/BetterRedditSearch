@@ -127,7 +127,7 @@
             posted on: %s<br />
             rankScore: %s
           </p>',
-          $result->getLink(),
+          $result->getPermaLink(),
           $result->getTitle(),
           $result->getScore(),
           $result->getNumComments(),
@@ -155,8 +155,9 @@
         $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
         $selfText = $data['selftext'];
         $url = $data['url'];
+        $permalink = $data['permalink'];
 
-        $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url);
+        $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url, $permalink);
         scorePost($post, $query);
         array_push($retVal, $post);
       }
