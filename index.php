@@ -136,6 +136,15 @@
     }
   }
 
+  function scorePost($postObject, $query) {
+    foreach ($query as $term) {
+      $postObjcet.addToRankScore(substr_count($postObjcet.getTitle(), $term));
+      if(!is_null($postObjcet.getSelfText())){
+        $postObjcet.addToRankScore(substr_count($postObjcet.getSelfText(), $term));
+      }
+    }
+  }
+
   main();
 
   
