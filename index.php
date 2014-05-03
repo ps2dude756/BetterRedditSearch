@@ -124,7 +124,8 @@
           '<p>
             <a href="http://www.reddit.com%s">%s</a><br />
             votes: %s, %s comments, posted by %s to /r/%s<br />
-            posted on: %s
+            posted on: %s<br />
+            rankScore: %s
           </p>',
           $result->getLink(),
           $result->getTitle(),
@@ -132,7 +133,8 @@
           $result->getNumComments(),
           $result->getAuthor(),
           $result->getSubreddit(),
-          $result->date
+          $result->date,
+          $result->getRankScore()
         );
       }
     }
