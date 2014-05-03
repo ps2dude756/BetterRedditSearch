@@ -10,17 +10,16 @@ class PostObject{
 	private $rankScore;
 	private $selfText; 
 
-	public function __construct($init = array()){
-		$this->title = $init['title'];
-		$this->score = $init['score'];
-		$this->numComments = $init['numComments'];
-		$this->author = $init['author'];
-		$this->title = $init['title'];
-		$this->subreddit = $init['subreddit'];
-		$this->date = $init['date'];
-		$this->link = $init['link'];
-		$this->selfText = $init['selfText'];
-		$this->rankScore = $init['rankScore'];
+	public function __construct($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText){
+		$this->title = $title;
+		$this->score = $score;
+		$this->numComments = $numComments;
+		$this->author = $author;
+		$this->subreddit = $subreddit;
+		$this->date = $date;
+		$this->link = $link;
+		$this->selfText = $selfText;
+		$this->rankScore = $this->score;
 
 
 	public function getTitle(){
@@ -102,18 +101,6 @@ class PostObject{
 
 	public function addToRankScore($val){
 		$this->rankScore += $this->rankScore + $val; 
-	}
-
-	public static cmp($a, $b){
-		if $a->getScore() < $b->getScore(){
-			return -1;
-		}
-		else if($a->getScore() > $b->getScore()){
-			return 1;
-		}
-		else{
-			return 0; 
-		}
 	}
 
 }

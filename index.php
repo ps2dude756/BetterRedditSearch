@@ -26,6 +26,7 @@
 
 <?php
   require 'reddit_search.php';
+  require 'postObject.php';
   date_default_timezone_set('America/Chicago');
 
   function main() {
@@ -62,7 +63,7 @@
     } else {
       $search = new RedditSearch($query, $options);
       $results = $search->get_search_results();
-      displayResults($results, $type, $blacklist);
+      displayResults($results, $type, $blacklist, $query);
     }
   }
 
@@ -114,7 +115,8 @@
     return true;
   }
 
-  function displayResults($results, $type, $blacklist) {
+  function displayResults($results, $type, $blacklist, $query) {
+    $results = rankPosts($results, $query)
     foreach ($results as $result) {
       $data = $result['data'];
       if (shouldDisplay($data, $type, $blacklist)) {
@@ -133,6 +135,26 @@
           date('D, M d Y @ h:i:s:a T', $data['created_utc'])
         );
       }
+    }
+  }
+
+  function rankPosts($results, $query){
+    $query = explode(" ", $query);
+
+    $retVal = array();
+    foreach($results as $result){
+      $data = $results['data'];
+      $title = $data['title'];
+      $score = $data['score'];
+      $numComments = $data['num_comments'];
+      $author = $data['author'];
+      $subreddit = $data['subreddit'];
+      $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
+      $selfText = $data['selftext'];
+
+      $post = new postObjcet($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText)
+
+
     }
   }
 
