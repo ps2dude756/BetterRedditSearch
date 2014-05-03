@@ -1,16 +1,16 @@
 <?
 class PostObject{
-	private $title;
-	private $score;
-	private $numComments;
-	private $author;
-	private $subreddit;
-	private $date;
-	private $link;
-	private $rankScore;
-	private $selfText; 
+	public $title;
+	public $score;
+	public $numComments;
+	public $author;
+	public $subreddit;
+	public $date;
+	public $link;
+	public $rankScore;
+	public $selfText; 
 
-	public function __construct($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText){
+	public function __construct($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url){
 		$this->title = $title;
 		$this->score = $score;
 		$this->numComments = $numComments;
@@ -20,8 +20,9 @@ class PostObject{
 		$this->link = $link;
 		$this->selfText = $selfText;
 		$this->rankScore = $this->score;
+		$this->url = $url;
 
-
+	}
 	public function getTitle(){
 		return $this->title;
 	}
@@ -36,10 +37,6 @@ class PostObject{
 
 	public function getAuthor(){
 		return $this->author; 
-	}
-
-	public function getTitle(){
-		return $this->title;
 	}
 
 	public function getSubreddit(){
@@ -62,6 +59,9 @@ class PostObject{
 		return $this->rankScore;
 	}
 
+	public function getURL(){
+		return $this->url;
+	}
 
 	public function setTitle($title){
 		$this->title = $title;
@@ -95,8 +95,8 @@ class PostObject{
 		$this->selfText = $text; 
 	}
 
-	public function setScore($score){
-		$this->score = $score; 
+	public function setRankScore($score){
+		$this->rankScore = $score; 
 	}
 
 	public function addToRankScore($val){

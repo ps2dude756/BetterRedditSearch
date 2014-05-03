@@ -58,7 +58,7 @@
         $search = new RedditSearch($query, $options);
         $results = $search->get_search_results();
         echo sprintf('<p><b>/r/%s</b>', $entry);
-        displayResults($results, $type, $blacklist);
+        displayResults($results, $type, $blacklist, $query);
       }
     } else {
       $search = new RedditSearch($query, $options);
@@ -91,7 +91,7 @@
 
   function shouldDisplay($data, $type, $blacklist) {
     if ($type === 'image') {
-        $url = $data['url'];
+        $url = $data->getURL();
         $image_types = array('imgur', 'gif', 'minus', 'jpeg', 'png', 'bmp');
         foreach ($image_types as $image_type) {
           if (strpos($url, $image_type)) {
@@ -106,7 +106,7 @@
 
     if ($blacklist) {
       foreach ($blacklist as $entry) {
-        if (!strcasecmp($data['subreddit'], $entry)) {
+        if (!strcasecmp($data->getSubreddit(), $entry)) {
           return false;
         }
       }
@@ -116,23 +116,22 @@
   }
 
   function displayResults($results, $type, $blacklist, $query) {
-    $results = rankPosts($results, $query)
+    $results = rankPosts($results, $query);
     foreach ($results as $result) {
-      $data = $result['data'];
-      if (shouldDisplay($data, $type, $blacklist)) {
+      if (shouldDisplay($result, $type, $blacklist)) {
         echo sprintf(
           '<p>
             <a href="http://www.reddit.com%s">%s</a><br />
             votes: %s, %s comments, posted by %s to /r/%s<br />
             posted on: %s
           </p>',
-          $data['permalink'],
-          $data['title'],
-          $data['score'],
-          $data['num_comments'],
-          $data['author'],
-          $data['subreddit'],
-          date('D, M d Y @ h:i:s:a T', $data['created_utc'])
+          $result->getLink(),
+          $result->getTitle(),
+          $result->getScore(),
+          $result->getNumComments(),
+          $result->getAuthor(),
+          $result->getSubreddit(),
+          $result->date
         );
       }
     }
@@ -143,7 +142,7 @@
 
     $retVal = array();
     foreach($results as $result){
-      $data = $results['data'];
+      $data = $result['data'];
       $title = $data['title'];
       $score = $data['score'];
       $numComments = $data['num_comments'];
@@ -151,23 +150,22 @@
       $subreddit = $data['subreddit'];
       $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
       $selfText = $data['selftext'];
+      $url = $data['url'];
 
-      $post = new postObjcet($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText)
+      $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url);
       scorePost($post, $query);
       array_push($retVal, $post);
     }
-
-    usort($retVal, "cmp")
-
+    usort($retVal, "cmp");
     return $retVal; 
   }
 
   function cmp($a, $b){
-    if $a->getScore() < $b->getScore(){
-      return -1;
+    if($a->getScore() < $b->getScore()) {
+      return 1;
     }
     else if($a->getScore() > $b->getScore()){
-      return 1;
+      return -1;
     }
     else{
       return 0; 
@@ -176,9 +174,9 @@
 
   function scorePost($postObject, $query) {
     foreach ($query as $term) {
-      $postObjcet.addToRankScore(substr_count($postObjcet.getTitle(), $term));
-      if(!is_null($postObjcet.getSelfText())){
-        $postObjcet.addToRankScore(substr_count($postObjcet.getSelfText(), $term));
+      $postObject->addToRankScore(substr_count($postObject->getTitle(), $term));
+      if(!is_null($postObject->getSelfText())){
+        $postObject->addToRankScore(substr_count($postObject->getSelfText(), $term));
       }
     }
   }
