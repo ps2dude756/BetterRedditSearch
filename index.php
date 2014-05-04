@@ -26,6 +26,7 @@
 
 <?php
   require 'reddit_search.php';
+  require 'postObject.php';
   date_default_timezone_set('America/Chicago');
 
   function main() {
@@ -52,17 +53,18 @@
     }
 
     if ($whitelist) {
+      $results = array();
       foreach ($whitelist as $entry) {
         $options['subreddit'] = $entry;
         $search = new RedditSearch($query, $options);
-        $results = $search->get_search_results();
-        echo sprintf('<p><b>/r/%s</b>', $entry);
-        displayResults($results, $type, $blacklist);
+        array_push($results, $search->get_search_results());
       }
+      displayResults($results, $type, $blacklist, $query);
     } else {
+      $results = array();
       $search = new RedditSearch($query, $options);
-      $results = $search->get_search_results();
-      displayResults($results, $type, $blacklist);
+      array_push($results, $search->get_search_results());
+      displayResults($results, $type, $blacklist, $query);
     }
   }
 
@@ -90,7 +92,7 @@
 
   function shouldDisplay($data, $type, $blacklist) {
     if ($type === 'image') {
-        $url = $data['url'];
+        $url = $data->getURL();
         $image_types = array('imgur', 'gif', 'minus', 'jpeg', 'png', 'bmp');
         foreach ($image_types as $image_type) {
           if (strpos($url, $image_type)) {
@@ -105,7 +107,7 @@
 
     if ($blacklist) {
       foreach ($blacklist as $entry) {
-        if (!strcasecmp($data['subreddit'], $entry)) {
+        if (!strcasecmp($data->getSubreddit(), $entry)) {
           return false;
         }
       }
@@ -114,24 +116,73 @@
     return true;
   }
 
-  function displayResults($results, $type, $blacklist) {
+  function displayResults($results, $type, $blacklist, $query) {
+    $results = rankPosts($results, $query);
     foreach ($results as $result) {
-      $data = $result['data'];
-      if (shouldDisplay($data, $type, $blacklist)) {
+      if (shouldDisplay($result, $type, $blacklist)) {
         echo sprintf(
           '<p>
             <a href="http://www.reddit.com%s">%s</a><br />
             votes: %s, %s comments, posted by %s to /r/%s<br />
-            posted on: %s
+            posted on: %s<br />
+            rankScore: %s
           </p>',
-          $data['permalink'],
-          $data['title'],
-          $data['score'],
-          $data['num_comments'],
-          $data['author'],
-          $data['subreddit'],
-          date('D, M d Y @ h:i:s:a T', $data['created_utc'])
+          $result->getPermaLink(),
+          $result->getTitle(),
+          $result->getScore(),
+          $result->getNumComments(),
+          $result->getAuthor(),
+          $result->getSubreddit(),
+          $result->date,
+          $result->getRankScore()
         );
+      }
+    }
+  }
+
+  function rankPosts($jsons, $query){
+    $query = explode(" ", $query);
+
+    $retVal = array();
+    foreach($jsons as $results){
+      foreach($results as $result){
+        $data = $result['data'];
+        $title = $data['title'];
+        $score = $data['score'];
+        $numComments = $data['num_comments'];
+        $author = $data['author'];
+        $subreddit = $data['subreddit'];
+        $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
+        $selfText = $data['selftext'];
+        $url = $data['url'];
+        $permalink = $data['permalink'];
+
+        $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url, $permalink);
+        scorePost($post, $query);
+        array_push($retVal, $post);
+      }
+    }
+    usort($retVal, "cmp");
+    return $retVal; 
+  }
+
+  function cmp($a, $b){
+    if($a->getScore() < $b->getScore()) {
+      return 1;
+    }
+    else if($a->getScore() > $b->getScore()){
+      return -1;
+    }
+    else{
+      return 0; 
+    }
+  }
+
+  function scorePost($postObject, $query) {
+    foreach ($query as $term) {
+      $postObject->addToRankScore(substr_count($postObject->getTitle(), $term));
+      if(!is_null($postObject->getSelfText())){
+        $postObject->addToRankScore(substr_count($postObject->getSelfText(), $term));
       }
     }
   }
