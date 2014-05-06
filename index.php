@@ -180,10 +180,33 @@
 
   function scorePost($postObject, $query) {
     foreach ($query as $term) {
-      $postObject->addToRankScore(substr_count($postObject->getTitle(), $term));
+      $titleScore = 0;
+      $selfTextScore = 0;
+      $term = stem($term, STEM_ENGLISH);
+
+      $title = explode(' ', $postObject->getTitle());
+      $selfText = NULL;
       if(!is_null($postObject->getSelfText())){
-        $postObject->addToRankScore(substr_count($postObject->getSelfText(), $term));
+        $selfText = explode(' ', $postObject->getSelfText());
       }
+
+      foreach ($title as $word) {
+        $word = stem($word, STEM_ENGLISH);
+        if(strcasecmp($term, $word) == 0){
+          $titleScore++;
+        }
+      }
+
+      if(!is_null($selfText)){
+        foreach ($selfText as $word) {
+          $word = stem($word, STEM_ENGLISH);
+          if(strcasecmp($term, $word) == 0){
+            $selfTextScore++;
+          }
+        }
+      }
+
+      $postObject->addToRankScore(($titleScore + $selfTextScore));
     }
   }
 
