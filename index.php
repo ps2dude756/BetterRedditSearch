@@ -54,20 +54,18 @@
       $whitelist = get_subreddits($_GET['whitelist']);
     }
 
+    $results = array();
     if ($whitelist) {
-      $results = array();
       foreach ($whitelist as $entry) {
         $options['subreddit'] = $entry;
         $search = new RedditSearch($query, $options);
-        array_push($results, $search->get_search_results());
+        $results = array_merge($results, $search->get_search_results());
       }
-      displayResults($results, $type, $blacklist, $query);
     } else {
-      $results = array();
       $search = new RedditSearch($query, $options);
-      array_push($results, $search->get_search_results());
-      displayResults($results, $type, $blacklist, $query);
+      $results = array_merge($results, $search->get_search_results());
     }
+    displayResults($results, $type, $blacklist, $query);
   }
 
   function get_subreddits($list) {
@@ -142,30 +140,28 @@
     }
   }
 
-  function rankPosts($jsons, $query){
+  function rankPosts($results, $query){
     $query = explode(" ", $query);
     foreach (array_keys($query, '') as $key) {
       unset($query[$key]);
     }
 
     $retVal = array();
-    foreach($jsons as $results){
-      foreach($results as $result){
-        $data = $result['data'];
-        $title = $data['title'];
-        $score = $data['score'];
-        $numComments = $data['num_comments'];
-        $author = $data['author'];
-        $subreddit = $data['subreddit'];
-        $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
-        $selfText = $data['selftext'];
-        $url = $data['url'];
-        $permalink = $data['permalink'];
+    foreach($results as $result){
+      $data = $result['data'];
+      $title = $data['title'];
+      $score = $data['score'];
+      $numComments = $data['num_comments'];
+      $author = $data['author'];
+      $subreddit = $data['subreddit'];
+      $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
+      $selfText = $data['selftext'];
+      $url = $data['url'];
+      $permalink = $data['permalink'];
 
-        $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $selfText, $url, $permalink);
-        scorePost($post, $query);
-        array_push($retVal, $post);
-      }
+      $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $selfText, $url, $permalink);
+      scorePost($post, $query);
+      array_push($retVal, $post);
     }
     usort($retVal, "cmp");
     return $retVal; 
