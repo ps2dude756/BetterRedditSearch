@@ -20,16 +20,25 @@
     public $flair = '';
 
     /* Pagination */
-    public $after = ""; // fullname of an item to use as a slicepoint. Do not use if before is set
-    public $before = ""; // fullname of an item to use as a slicepoint. Do not use if after is set
-    public $count = ""; // The number of items already seen
-    public $limit = ""; // The maximum number of items to return
-    public $show = ""; // optional parameter. Should usually use all
+    public $after = "";
+    public $before = "";
+    public $count = 0;
+    public $limit = 100;
+    public $show = "all";
 
-    /* Other */
-    public $sort = "relevance"; // the type of search to perform. Options are relevance, new, hot, top, comments
-    public $syntax = "cloudsearch"; // tye type of search engine to use. Options are cloudsearch, lucene, plain. Should usually use cloudsearch
-    public $t = "all"; // the slice of history to search over. Options are hour, day, week, month, year, all.
+    /* Other
+     * These parameters should be left as their defaults. Below is an explanation of their function
+     * sort: string -  the type of search to perform.
+     *  Options are 'relevance', 'new', 'hot', 'top', 'comments'
+     * syntax: string - the type of search engine to use.
+     *  Options are 'cloudsearch', 'lucene', 'plain'.
+     *  Should usually use 'cloudsearch'
+     * t: string - the slice of history to search over.
+     *  Options are 'hour', 'day', 'week', 'month', 'year', 'all'.
+     */
+    public $sort = "relevance";
+    public $syntax = "cloudsearch";
+    public $t = "all";
 
     /*
      * Initialize the instance.
@@ -79,6 +88,38 @@
 
       if (array_key_exists('flair', $options)) {
         $this->flair = $options['flair'];
+      }
+    }
+
+    /*
+     * Set pagination data for the search
+     * @param pagination
+     *    An associative array containing pagination data. Allowed keys are:
+     *      'after': string - the fullname of an item to use as a slicepoint. Do not use if before is set 
+     *      'before': string - the fullname of an item to use as a slicepoint. Do not use if after is set
+     *      'count': integer - the number of items already seen
+     *      'limit': integer - the maximum number of items to return
+     *      'show': string - optional parameter. Should usually use 'all'
+     */
+    public function set_pagination($pagination) {
+      if (array_key_exists('after', $pagination)) {
+        $this->after = $pagination['after'];
+      }
+
+      if (array_key_exists('before', $pagination)) {
+        $this->before = $pagination['before'];
+      }
+
+      if (array_key_exists('count', $pagination)) {
+        $this->count = $pagination['count'];
+      }
+
+      if (array_key_exists('limit', $pagination)) {
+        $this->limit = $pagination['limit'];
+      }
+
+      if (array_key_exists('show', $pagination)) {
+        $this->show = $pagination['show'];
       }
     }
 
