@@ -1,5 +1,7 @@
 <?php
 
+  $USER_AGENT = 'BetterRedditSearch';
+
   function is_yes_or_no($string) {
     return $string === 'yes' or $string === 'no';
   }
@@ -84,6 +86,8 @@
       $curl = curl_init($this->get_url());
       curl_setopt($curl, CURLOPT_HTTPGET, true);
       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+      global $USER_AGENT;
+      curl_setopt($curl, CURLOPT_USERAGENT, $USER_AGENT);
       $curl_response = curl_exec($curl);
       curl_close($curl);
       $decoded = json_decode($curl_response, true);
