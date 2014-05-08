@@ -144,6 +144,9 @@
 
   function rankPosts($jsons, $query){
     $query = explode(" ", $query);
+    foreach (array_keys($query, '') as $key) {
+      unset($query[$key]);
+    }
 
     $retVal = array();
     foreach($jsons as $results){
@@ -183,7 +186,7 @@
   function scorePost($postObject, $query) {
     foreach ($query as $term) {
       $postObject->addToRankScore(substr_count($postObject->getTitle(), $term));
-      if(!is_null($postObject->getSelfText())){
+      if($postObject->getSelfText()){
         $postObject->addToRankScore(substr_count($postObject->getSelfText(), $term));
       }
     }
