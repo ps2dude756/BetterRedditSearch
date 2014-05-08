@@ -1,4 +1,4 @@
-<?
+<?php
 class PostObject{
 	public $title;
 	public $score;
@@ -6,18 +6,16 @@ class PostObject{
 	public $author;
 	public $subreddit;
 	public $date;
-	public $link;
 	public $rankScore;
 	public $selfText; 
 
-	public function __construct($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url, $permalink){
+	public function __construct($title, $score, $numComments, $author, $subreddit, $date, $selfText, $url, $permalink){
 		$this->title = $title;
 		$this->score = $score;
 		$this->numComments = $numComments;
 		$this->author = $author;
 		$this->subreddit = $subreddit;
 		$this->date = $date;
-		$this->link = $link;
 		$this->selfText = $selfText;
 		$this->rankScore = $this->score;
 		$this->url = $url;
@@ -46,10 +44,6 @@ class PostObject{
 
 	public function getDate(){
 		return $this->date;
-	}
-
-	public function getLink(){
-		return $this->link;
 	}
 
 	public function getSelfText(){
@@ -90,10 +84,6 @@ class PostObject{
 
 	public function setDate($date){
 		$this->date = $date;
-	}
-
-	public function setLink($link){
-		$this->link = $link;
 	}
 
 	public function setSelfText($text){
