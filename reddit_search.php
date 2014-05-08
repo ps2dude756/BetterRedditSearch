@@ -1,4 +1,5 @@
 <?php
+  require_once 'postObject.php';
 
   $USER_AGENT = 'BetterRedditSearch';
 
@@ -132,7 +133,12 @@
       $curl_response = curl_exec($curl);
       curl_close($curl);
       $decoded = json_decode($curl_response, true);
-      return $decoded['data']['children'];
+
+      $reddit_posts = array();
+      foreach ($decoded['data']['children'] as $result) {
+        array_push($reddit_posts, get_postObject($result));
+      }
+      return $reddit_posts;
     }
 
     private function get_url() {

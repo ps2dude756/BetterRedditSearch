@@ -25,8 +25,8 @@
 </form>
 
 <?php
-  require 'reddit_search.php';
-  require 'postObject.php';
+  require_once 'reddit_search.php';
+  require_once 'postObject.php';
   date_default_timezone_set('America/Chicago');
 
   function main() {
@@ -54,18 +54,18 @@
       $whitelist = get_subreddits($_GET['whitelist']);
     }
 
-    $results = array();
+    $posts = array();
     if ($whitelist) {
       foreach ($whitelist as $entry) {
         $options['subreddit'] = $entry;
         $search = new RedditSearch($query, $options);
-        $results = array_merge($results, $search->get_search_results());
+        $posts = array_merge($posts, $search->get_search_results());
       }
     } else {
       $search = new RedditSearch($query, $options);
-      $results = array_merge($results, $search->get_search_results());
+      $posts = array_merge($posts, $search->get_search_results());
     }
-    displayResults($results, $type, $blacklist, $query);
+    displayResults($posts, $type, $blacklist, $query);
   }
 
   function get_subreddits($list) {
@@ -116,8 +116,8 @@
     return true;
   }
 
-  function displayResults($results, $type, $blacklist, $query) {
-    $results = rankPosts($results, $query);
+  function displayResults($posts, $type, $blacklist, $query) {
+    $results = rankPosts($posts, $query);
     foreach ($results as $result) {
       if (shouldDisplay($result, $type, $blacklist)) {
         echo sprintf(
@@ -140,26 +140,14 @@
     }
   }
 
-  function rankPosts($results, $query){
+  function rankPosts($posts, $query){
     $query = explode(" ", $query);
     foreach (array_keys($query, '') as $key) {
       unset($query[$key]);
     }
 
     $retVal = array();
-    foreach($results as $result){
-      $data = $result['data'];
-      $title = $data['title'];
-      $score = $data['score'];
-      $numComments = $data['num_comments'];
-      $author = $data['author'];
-      $subreddit = $data['subreddit'];
-      $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
-      $selfText = $data['selftext'];
-      $url = $data['url'];
-      $permalink = $data['permalink'];
-
-      $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $selfText, $url, $permalink);
+    foreach($posts as $post){
       scorePost($post, $query);
       array_push($retVal, $post);
     }

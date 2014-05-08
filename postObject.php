@@ -1,4 +1,19 @@
 <?php
+function get_postObject($result) {
+  $data = $result['data'];
+  $title = $data['title'];
+  $score = $data['score'];
+  $numComments = $data['num_comments'];
+  $author = $data['score'];
+  $subreddit = $data['subreddit'];
+  $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
+  $selfText = $data['selftext'];
+  $url = $data['url'];
+  $permalink = $data['permalink'];
+
+  return new PostObject($title, $score, $numComments, $author, $subreddit, $date, $selfText, $url, $permalink);
+}
+
 class PostObject{
 	public $title;
 	public $score;
