@@ -136,9 +136,10 @@
     }
 
     private function get_url() {
-      $url = 'http://www.reddit.com/search.json?q='.$this->format_query();
+      $url = 'http://www.reddit.com/search.json?q='.$this->format_query().$this->format_pagination().$this->format_other();
       $url = str_replace(' ', '%20', $url);
       $url = str_replace(';', '%3A', $url);
+      var_export($url);
       return $url;
     }
 
@@ -179,6 +180,50 @@
 
       $query .= $this->query;
       return $query;
+    }
+
+    private function format_pagination() {
+      $format_string = '';
+
+      if ($this->after) {
+        $format_string .= '&after='.$this->after;
+      }
+
+      if ($this->before) {
+        $format_string .= '&before='.$this->before;
+      }
+
+      if ($this->count) {
+        $format_string .= '&count='.$this->count;
+      }
+
+      if ($this->limit) {
+        $format_string .= '&limit='.$this->limit;
+      }
+
+      if ($this->show) {
+        $format_string .= '&show='.$this->show;
+      }
+
+      return $format_string;
+    }
+
+    private function format_other() {
+      $format_string = '';
+
+      if ($this->sort) {
+        $format_string .= '&sort='.$this->sort;
+      }
+
+      if ($this->syntax) {
+        $format_string .= '&syntax='.$this->syntax;
+      }
+
+      if ($this->t) {
+        $format_string .= '&t='.$this->t;
+      }
+
+      return $format_string;
     }
   }
 ?> 
