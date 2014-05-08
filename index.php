@@ -157,7 +157,7 @@
         $url = $data['url'];
         $permalink = $data['permalink'];
 
-        $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $link, $selfText, $url, $permalink);
+        $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $selfText, $url, $permalink);
         scorePost($post, $query);
         array_push($retVal, $post);
       }
