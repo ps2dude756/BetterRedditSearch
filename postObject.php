@@ -36,7 +36,7 @@ class PostObject{
 		$this->subreddit = $subreddit;
 		$this->date = $date;
 		$this->selfText = $selfText;
-		$this->rankScore = log($this->score + 1);
+		$this->rankScore = .1 * log($this->score + 1);
 		$this->url = $url;
     	$this->permalink = $permalink;
    		$this->name = $name;
@@ -111,11 +111,11 @@ class PostObject{
 	}
 
 	public function setRankScore($score){
-		$this->rankScore = $score; 
+		$this->rankScore = $rankScore; 
 	}
 
 	public function addToRankScore($val){
-		$this->rankScore += $this->rankScore + $val; 
+		$this->rankScore += $val; 
 	}
 
 }
