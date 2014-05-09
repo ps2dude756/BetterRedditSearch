@@ -244,9 +244,6 @@
         }
       }
 
-      //$docTitle = exec('phantomjs text_scraper.js ' $postObject->getURL());
-      //var_dump($docTitle);
-
       if($selfTextScore == 0 && $titleScore == 0){
         $postObject->addToRankScore(-$postObject->getRankScore());
       }
