@@ -36,10 +36,10 @@ class PostObject{
 		$this->subreddit = $subreddit;
 		$this->date = $date;
 		$this->selfText = $selfText;
-		$this->rankScore = $this->score;
+		$this->rankScore = log($this->score + 1);
 		$this->url = $url;
-    $this->permalink = $permalink;
-    $this->name = $name;
+    	$this->permalink = $permalink;
+   		$this->name = $name;
   }
 
 	public function getTitle(){

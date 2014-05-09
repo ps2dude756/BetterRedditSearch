@@ -242,7 +242,7 @@
         }
       }
 
-      $postObject->addToRankScore(($titleScore + $selfTextScore));
+      $postObject->addToRankScore((log($titleScore + 1) + log($selfTextScore + 1)));
     }
   }
 
