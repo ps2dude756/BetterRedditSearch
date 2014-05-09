@@ -58,14 +58,51 @@
     if ($whitelist) {
       foreach ($whitelist as $entry) {
         $options['subreddit'] = $entry;
-        $search = new RedditSearch($query, $options);
-        $posts = array_merge($posts, $search->get_search_results());
+        $posts = array_merge(
+          $posts, 
+          get_posts($query, $options, $type, $blacklist)
+        );
       }
     } else {
-      $search = new RedditSearch($query, $options);
-      $posts = array_merge($posts, $search->get_search_results());
+      $posts = array_merge(
+        $posts,
+        get_posts($query, $options, $type, $blacklist)
+      );
     }
-    displayResults($posts, $type, $blacklist, $query);
+    $posts = rankPosts($posts, $query);
+    displayResults($posts);
+  }
+
+  function get_posts($query, $options, $type, $blacklist) {
+    $posts = array();
+    $after = '';
+
+    while (count($posts) < 100) {
+      $search = new RedditSearch($query, $options);
+      if ($after) {
+        $search->set_pagination(array('after' => $after));
+      }
+      $results = $search->get_search_results();
+      if ($results) {
+        $after = end(array_values($results))->name;
+        $results = remove_unwanted_results($results, $type, $blacklist);
+        $posts = array_merge($posts, $results);
+      } else {
+        break;
+      }
+    }
+
+    return $posts;
+  }
+
+  function remove_unwanted_results($results, $type, $blacklist) {
+    foreach (array_keys($results) as $result_key) {
+      if (!shouldDisplay($results[$result_key], $type, $blacklist)) {
+        unset($results[$result_key]);
+      }
+    }
+
+    return $results;
   }
 
   function get_subreddits($list) {
@@ -116,27 +153,24 @@
     return true;
   }
 
-  function displayResults($posts, $type, $blacklist, $query) {
-    $results = rankPosts($posts, $query);
-    foreach ($results as $result) {
-      if (shouldDisplay($result, $type, $blacklist)) {
-        echo sprintf(
-          '<p>
-            <a href="http://www.reddit.com%s">%s</a><br />
-            votes: %s, %s comments, posted by %s to /r/%s<br />
-            posted on: %s<br />
-            rankScore: %s
-          </p>',
-          $result->getPermaLink(),
-          $result->getTitle(),
-          $result->getScore(),
-          $result->getNumComments(),
-          $result->getAuthor(),
-          $result->getSubreddit(),
-          $result->date,
-          $result->getRankScore()
-        );
-      }
+  function displayResults($posts) {
+    for ($i = 0; $i < 25; $i++) {
+      echo sprintf(
+        '<p>
+          <a href="http://www.reddit.com%s">%s</a><br />
+          votes: %s, %s comments, posted by %s to /r/%s<br />
+          posted on: %s<br />
+          rankScore: %s
+        </p>',
+        $posts[$i]->getPermaLink(),
+        $posts[$i]->getTitle(),
+        $posts[$i]->getScore(),
+        $posts[$i]->getNumComments(),
+        $posts[$i]->getAuthor(),
+        $posts[$i]->getSubreddit(),
+        $posts[$i]->date,
+        $posts[$i]->getRankScore()
+      );
     }
   }
 
