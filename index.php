@@ -175,14 +175,15 @@
           posted on: %s<br />
           rankScore: %s
         </p>',
-        $posts[$i]->getURL(),
-        $posts[$i]->getTitle(),
-        $posts[$i]->getScore(),
-        $posts[$i]->getNumComments(),
-        $posts[$i]->getAuthor(),
-        $posts[$i]->getSubreddit(),
-        $posts[$i]->date,
-        $posts[$i]->getRankScore()
+
+        htmlspecialchars($posts[$i]->getPermaLink()),
+        htmlspecialchars($posts[$i]->getTitle()),
+        htmlspecialchars($posts[$i]->getScore()),
+        htmlspecialchars($posts[$i]->getNumComments()),
+        htmlspecialchars($posts[$i]->getAuthor()),
+        htmlspecialchars($posts[$i]->getSubreddit()),
+        htmlspecialchars($posts[$i]->date),
+        htmlspecialchars($posts[$i]->getRankScore())
       );
     }
   }
