@@ -32,13 +32,13 @@
      * sort: string -  the type of search to perform.
      *  Options are 'relevance', 'new', 'hot', 'top', 'comments'
      * syntax: string - the type of search engine to use.
-     *  Options are 'cloudsearch', 'lucene', 'plain'.
+     *  Options are (leave blank to use cloudsearch), 'lucene', 'plain'.
      *  Should usually use 'cloudsearch'
      * t: string - the slice of history to search over.
      *  Options are 'hour', 'day', 'week', 'month', 'year', 'all'.
      */
     public $sort = "relevance";
-    public $syntax = "cloudsearch";
+    public $syntax = "";
     public $t = "all";
 
     /*
@@ -145,6 +145,7 @@
       $url = 'http://www.reddit.com/search.json?q='.$this->format_query().$this->format_pagination().$this->format_other();
       $url = str_replace(' ', '%20', $url);
       $url = str_replace(';', '%3A', $url);
+      var_export($url);
       return $url;
     }
 
