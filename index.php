@@ -176,7 +176,7 @@
           rankScore: %s
         </p>',
 
-        htmlspecialchars($posts[$i]->getPermaLink()),
+        htmlspecialchars($posts[$i]->getURL()),
         htmlspecialchars($posts[$i]->getTitle()),
         htmlspecialchars($posts[$i]->getScore()),
         htmlspecialchars($posts[$i]->getNumComments()),
