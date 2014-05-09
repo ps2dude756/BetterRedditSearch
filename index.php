@@ -106,7 +106,20 @@
   }
 
   function get_subreddits($list) {
-    return explode(' ', str_replace('/r/', '', $list));
+    // Remove any /r/ or r/ at the beginning of a name
+    $list_array = explode(
+      ' ', 
+      str_replace('r/', '', str_replace('/r/', '', $list))
+    );
+
+    foreach (array_keys($list_array) as $key) {
+      if (!$list_array[$key]) {
+        unset($list_array[$key]);
+      }
+    }
+
+    // Normalize the array keys
+    return array_values($list_array); 
   }
 
   function get_options($type) {
@@ -154,7 +167,7 @@
   }
 
   function displayResults($posts) {
-    for ($i = 0; $i < 25; $i++) {
+    for ($i = 0; $i < min(25, count($posts)); $i++) {
       echo sprintf(
         '<p>
           <a href="http://www.reddit.com%s">%s</a><br />
