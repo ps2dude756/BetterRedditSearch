@@ -244,11 +244,14 @@
         }
       }
 
+      //$docTitle = exec('phantomjs text_scraper.js ' $postObject->getURL());
+      //var_dump($docTitle);
+
       if($selfTextScore == 0 && $titleScore == 0){
         $postObject->addToRankScore(-$postObject->getRankScore());
       }
       else{
-        $postObject->addToRankScore(.9 * (.4 * log($titleScore + 1) + .6 * log($selfTextScore + 1)));
+        $postObject->addToRankScore(.9 * (log($titleScore + 1) + log($selfTextScore + 1)));
       }
       
     }
