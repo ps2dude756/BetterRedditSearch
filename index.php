@@ -25,8 +25,8 @@
 </form>
 
 <?php
-  require 'reddit_search.php';
-  require 'postObject.php';
+  require_once 'reddit_search.php';
+  require_once 'postObject.php';
   date_default_timezone_set('America/Chicago');
 
   function main() {
@@ -54,24 +54,72 @@
       $whitelist = get_subreddits($_GET['whitelist']);
     }
 
+    $posts = array();
     if ($whitelist) {
-      $results = array();
       foreach ($whitelist as $entry) {
         $options['subreddit'] = $entry;
-        $search = new RedditSearch($query, $options);
-        array_push($results, $search->get_search_results());
+        $posts = array_merge(
+          $posts, 
+          get_posts($query, $options, $type, $blacklist)
+        );
       }
-      displayResults($results, $type, $blacklist, $query);
     } else {
-      $results = array();
-      $search = new RedditSearch($query, $options);
-      array_push($results, $search->get_search_results());
-      displayResults($results, $type, $blacklist, $query);
+      $posts = array_merge(
+        $posts,
+        get_posts($query, $options, $type, $blacklist)
+      );
     }
+    $posts = rankPosts($posts, $query);
+    displayResults($posts);
+  }
+
+  function get_posts($query, $options, $type, $blacklist) {
+    $posts = array();
+    $after = '';
+
+    while (count($posts) < 100) {
+      $search = new RedditSearch($query, $options);
+      if ($after) {
+        $search->set_pagination(array('after' => $after));
+      }
+      $results = $search->get_search_results();
+      if ($results) {
+        $after = end(array_values($results))->name;
+        $results = remove_unwanted_results($results, $type, $blacklist);
+        $posts = array_merge($posts, $results);
+      } else {
+        break;
+      }
+    }
+
+    return $posts;
+  }
+
+  function remove_unwanted_results($results, $type, $blacklist) {
+    foreach (array_keys($results) as $result_key) {
+      if (!shouldDisplay($results[$result_key], $type, $blacklist)) {
+        unset($results[$result_key]);
+      }
+    }
+
+    return $results;
   }
 
   function get_subreddits($list) {
-    return explode(' ', str_replace('/r/', '', $list));
+    // Remove any /r/ or r/ at the beginning of a name
+    $list_array = explode(
+      ' ', 
+      str_replace('r/', '', str_replace('/r/', '', $list))
+    );
+
+    foreach (array_keys($list_array) as $key) {
+      if (!$list_array[$key]) {
+        unset($list_array[$key]);
+      }
+    }
+
+    // Normalize the array keys
+    return array_values($list_array); 
   }
 
   function get_options($type) {
@@ -118,54 +166,37 @@
     return true;
   }
 
-  function displayResults($results, $type, $blacklist, $query) {
-    $results = rankPosts($results, $query);
-    foreach ($results as $result) {
-      if (shouldDisplay($result, $type, $blacklist)) {
-        echo sprintf(
-          '<p>
-            <a href="http://www.reddit.com%s">%s</a><br />
-            votes: %s, %s comments, posted by %s to /r/%s<br />
-            posted on: %s<br />
-            rankScore: %s
-          </p>',
-          $result->getPermaLink(),
-          $result->getTitle(),
-          $result->getScore(),
-          $result->getNumComments(),
-          $result->getAuthor(),
-          $result->getSubreddit(),
-          $result->date,
-          $result->getRankScore()
-        );
-      }
+  function displayResults($posts) {
+    for ($i = 0; $i < min(25, count($posts)); $i++) {
+      echo sprintf(
+        '<p>
+          <a href="http://www.reddit.com%s">%s</a><br />
+          votes: %s, %s comments, posted by %s to /r/%s<br />
+          posted on: %s<br />
+          rankScore: %s
+        </p>',
+        $posts[$i]->getPermaLink(),
+        $posts[$i]->getTitle(),
+        $posts[$i]->getScore(),
+        $posts[$i]->getNumComments(),
+        $posts[$i]->getAuthor(),
+        $posts[$i]->getSubreddit(),
+        $posts[$i]->date,
+        $posts[$i]->getRankScore()
+      );
     }
   }
 
-  function rankPosts($jsons, $query){
+  function rankPosts($posts, $query){
     $query = explode(" ", $query);
     foreach (array_keys($query, '') as $key) {
       unset($query[$key]);
     }
 
     $retVal = array();
-    foreach($jsons as $results){
-      foreach($results as $result){
-        $data = $result['data'];
-        $title = $data['title'];
-        $score = $data['score'];
-        $numComments = $data['num_comments'];
-        $author = $data['author'];
-        $subreddit = $data['subreddit'];
-        $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
-        $selfText = $data['selftext'];
-        $url = $data['url'];
-        $permalink = $data['permalink'];
-
-        $post = new postObject($title, $score, $numComments, $author, $subreddit, $date, $selfText, $url, $permalink);
-        scorePost($post, $query);
-        array_push($retVal, $post);
-      }
+    foreach($posts as $post){
+      scorePost($post, $query);
+      array_push($retVal, $post);
     }
     usort($retVal, "cmp");
     return $retVal; 

@@ -1,4 +1,5 @@
 <?php
+  require_once 'postObject.php';
 
   $USER_AGENT = 'BetterRedditSearch';
 
@@ -20,16 +21,25 @@
     public $flair = '';
 
     /* Pagination */
-    public $after = ""; // fullname of an item to use as a slicepoint. Do not use if before is set
-    public $before = ""; // fullname of an item to use as a slicepoint. Do not use if after is set
-    public $count = ""; // The number of items already seen
-    public $limit = ""; // The maximum number of items to return
-    public $show = ""; // optional parameter. Should usually use all
+    public $after = "";
+    public $before = "";
+    public $count = 0;
+    public $limit = 100;
+    public $show = "all";
 
-    /* Other */
-    public $sort = "relevance"; // the type of search to perform. Options are relevance, new, hot, top, comments
-    public $syntax = "cloudsearch"; // tye type of search engine to use. Options are cloudsearch, lucene, plain. Should usually use cloudsearch
-    public $t = "all"; // the slice of history to search over. Options are hour, day, week, month, year, all.
+    /* Other
+     * These parameters should be left as their defaults. Below is an explanation of their function
+     * sort: string -  the type of search to perform.
+     *  Options are 'relevance', 'new', 'hot', 'top', 'comments'
+     * syntax: string - the type of search engine to use.
+     *  Options are (leave blank to use cloudsearch), 'lucene', 'plain'.
+     *  Should usually use 'cloudsearch'
+     * t: string - the slice of history to search over.
+     *  Options are 'hour', 'day', 'week', 'month', 'year', 'all'.
+     */
+    public $sort = "relevance";
+    public $syntax = "";
+    public $t = "all";
 
     /*
      * Initialize the instance.
@@ -82,6 +92,38 @@
       }
     }
 
+    /*
+     * Set pagination data for the search
+     * @param pagination
+     *    An associative array containing pagination data. Allowed keys are:
+     *      'after': string - the fullname of an item to use as a slicepoint. Do not use if before is set 
+     *      'before': string - the fullname of an item to use as a slicepoint. Do not use if after is set
+     *      'count': integer - the number of items already seen
+     *      'limit': integer - the maximum number of items to return
+     *      'show': string - optional parameter. Should usually use 'all'
+     */
+    public function set_pagination($pagination) {
+      if (array_key_exists('after', $pagination)) {
+        $this->after = $pagination['after'];
+      }
+
+      if (array_key_exists('before', $pagination)) {
+        $this->before = $pagination['before'];
+      }
+
+      if (array_key_exists('count', $pagination)) {
+        $this->count = $pagination['count'];
+      }
+
+      if (array_key_exists('limit', $pagination)) {
+        $this->limit = $pagination['limit'];
+      }
+
+      if (array_key_exists('show', $pagination)) {
+        $this->show = $pagination['show'];
+      }
+    }
+
     public function get_search_results() {
       $curl = curl_init($this->get_url());
       curl_setopt($curl, CURLOPT_HTTPGET, true);
@@ -91,11 +133,16 @@
       $curl_response = curl_exec($curl);
       curl_close($curl);
       $decoded = json_decode($curl_response, true);
-      return $decoded['data']['children'];
+
+      $reddit_posts = array();
+      foreach ($decoded['data']['children'] as $result) {
+        array_push($reddit_posts, get_postObject($result));
+      }
+      return $reddit_posts;
     }
 
     private function get_url() {
-      $url = 'http://www.reddit.com/search.json?q='.$this->format_query();
+      $url = 'http://www.reddit.com/search.json?q='.$this->format_query().$this->format_pagination().$this->format_other();
       $url = str_replace(' ', '%20', $url);
       $url = str_replace(';', '%3A', $url);
       return $url;
@@ -138,6 +185,50 @@
 
       $query .= $this->query;
       return $query;
+    }
+
+    private function format_pagination() {
+      $format_string = '';
+
+      if ($this->after) {
+        $format_string .= '&after='.$this->after;
+      }
+
+      if ($this->before) {
+        $format_string .= '&before='.$this->before;
+      }
+
+      if ($this->count) {
+        $format_string .= '&count='.$this->count;
+      }
+
+      if ($this->limit) {
+        $format_string .= '&limit='.$this->limit;
+      }
+
+      if ($this->show) {
+        $format_string .= '&show='.$this->show;
+      }
+
+      return $format_string;
+    }
+
+    private function format_other() {
+      $format_string = '';
+
+      if ($this->sort) {
+        $format_string .= '&sort='.$this->sort;
+      }
+
+      if ($this->syntax) {
+        $format_string .= '&syntax='.$this->syntax;
+      }
+
+      if ($this->t) {
+        $format_string .= '&t='.$this->t;
+      }
+
+      return $format_string;
     }
   }
 ?> 
