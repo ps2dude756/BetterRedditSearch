@@ -145,7 +145,6 @@
       $url = 'http://www.reddit.com/search.json?q='.$this->format_query().$this->format_pagination().$this->format_other();
       $url = str_replace(' ', '%20', $url);
       $url = str_replace(';', '%3A', $url);
-      var_export($url);
       return $url;
     }
 
