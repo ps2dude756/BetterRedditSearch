@@ -4,7 +4,7 @@ function get_postObject($result) {
   $title = $data['title'];
   $score = $data['score'];
   $numComments = $data['num_comments'];
-  $author = $data['score'];
+  $author = $data['author'];
   $subreddit = $data['subreddit'];
   $date = date('D, M d Y @ h:i:s:a T', $data['created_utc']);
   $selfText = $data['selftext'];
